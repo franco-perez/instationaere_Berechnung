@@ -2181,7 +2181,7 @@ print "Zeit_sek_g",Zeit_sek_g
 
 
 plt.figure(2)
-plt.plot(zeit_solver,Temperature_celsius[:,19],color = 'blue',label=' Gehaeuse solver') 
+plt.plot(zeit_solver,Temperature_celsius[:,19],color = 'red',label=' Gehaeuse solver') 
 
 if Stat_Berechnung==0:
 	plt.plot(Zeit_sek_g,LSC_37,label='Gehaeuse Messung')
