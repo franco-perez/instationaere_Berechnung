@@ -1,26 +1,26 @@
-# instationaere_Berechnung
-#Grobstrukturmodell für die Temperaturberechnung mit python
-
-
 #!/usr/bin/python
 # coding: utf8
 
-#debugger: aufruf mit: " python -m pdb SIAS_test.py", next:n, continue:c, breakpoint:b, werte ausgeben: p
+#1) cambio: float durch Double ersetzen
+
+#debugger: aufruf mit: " python -m pdb Inst_Schrank_final.py", next:n, continue:c, breakpoint:b, werte ausgeben: p
 ### simulacion hecha con la interpolacion de franco y datenschaltschrank igual que para el caso estacionario
 
+### exigencias del programa
+
+#1) die .txt Datei soll folgendes heißen "Kaelteleistung_messungen_782", die Zahl 782, kommt aus Daten_Schaltshcrank wird per angabe definiert.
 
 
 ## corregir : 
+#1) Qkuehl_average , the average is not correctly calculated as Messung
 
 #1) reparar el Luftwerte, graficar nudo del aire y no de la placa, revisar que sensores son los adecuados
-#2) stat = instat. Fertig
-##3) tp=0.005 und dann wird die Masse der Platte 25,52 kg (ähnlich wie die Messung). Auf der Messsungen Dokument , stehen keine Angaben der Maße der Platte 	
 #3) probar que tanto cambian las sol. con dif sol ec. diferenciales. die sollen nicht viel abweichen.
-#4) masa de aire. dos secciones hinter und vorne. cada una tiene sus mediciones.
-#5) cosas pequenas por reparar:
-### - en caso de que se presente error en la interp. (re negativo) cambiar ip interpolation. Fertig
-##  - results in excel schreiben. 
-## ) mcp erstetzen durch Widerstand W.
+
+#slices indexing?
+#https://docs.scipy.org/doc/numpy-1.13.0/reference/arrays.indexing.html
+#x[1:2, 1:3]
+
 
 ####notas notes anmerkungen
 ### 1) os.path.abspath(__file__) => gib mir das Verzeichnis des aktuellen Dokumentes
@@ -61,11 +61,11 @@ import shutil
 
 from time import gmtime, strftime
 
+
 #from os import*
 from Luftwerte_Messungen import*
 from numpy import *
 from scipy.optimize import *
-#from scipy.integrate import odeint
 from scipy.integrate import solve_ivp
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -152,31 +152,31 @@ for i in range(0, laenge_datei):
 
 
 	
-# string zu float konvertieren
+# string zu double konvertieren
 
-h=float(h)
-b=float(b)
-t=float(t)
-s=float(s)
-hp=float(hp)
-tp=float(tp)
-bp=float(bp)
-xp=float(xp)
-yp=float(yp)
-zp=float(zp)
-cp=float(cp)
-dichte=float(dichte)
-Cs=float(Cs)
-eg=float(eg)
-ep=float(ep)
-lambda_g=float(lambda_g)
-lambda_p=float(lambda_p)
-v_dot=float(v_dot)
-QKKK=float(QKKK)
-Tamb=float(Tamb) #Tamb in kelvin
-QV1=float(QV1)
-QV2=float(QV2)
-QV3=float(QV3)
+h=double(h)
+b=double(b)
+t=double(t)
+s=double(s)
+hp=double(hp)
+tp=double(tp)
+bp=double(bp)
+xp=double(xp)
+yp=double(yp)
+zp=double(zp)
+cp=double(cp)
+dichte=double(dichte)
+Cs=double(Cs)
+eg=double(eg)
+ep=double(ep)
+lambda_g=double(lambda_g)
+lambda_p=double(lambda_p)
+v_dot=double(v_dot)
+QKKK=double(QKKK) # es wird benötigt nur beim Stationären Fall
+Tamb=double(Tamb) #Tamb in kelvin
+QV1=double(QV1)
+QV2=double(QV2)
+QV3=double(QV3)
 Automatic_on_off=float(Automatic_on_off)
 NumOfData=int(NumOfData)
 
@@ -185,7 +185,7 @@ NumOfData=int(NumOfData)
 #os.makedir()
 
 #sim_date=datetime.datetime.today().strftime('%Y-%m-%d')
-sim_date=datetime.datetime.today().strftime('%a,%d_%b_%Y')#,%H:%M:%S')
+sim_date=datetime.datetime.today().strftime('%d_%b_%Y_%H:%M:%S')
 
 
 
@@ -197,34 +197,28 @@ sim_date=datetime.datetime.today().strftime('%a,%d_%b_%Y')#,%H:%M:%S')
 #print new_dir
 #os.path.dirname(file_path)
 
-#Results_carpet = r'/home/fabian/Dokumente/studienarbeit/results_'+str(sim_date) 
+
 #os.makedirs(Results_carpet)
 my_path=os.getcwd() ### Aktuelles Verzeichnis der Berechnungsdokumente.
 
 ## Ergebnisse in einem neuen Ordner speichern 
 ## for overwrite a folder
-results_directory = r'/home/fabian/Dokumente/studienarbeit/results_'+str(sim_date) 
+results_directory = r''+ str(my_path)+'/results_'+ str(sim_date) 
+
 
 ## wenn der Folder da ist, wird der Weg durch die if schleife, wenn nicht, wird der if schleife übersprungen und geht es weiter zum Ordner erstellen
 if os.path.exists(results_directory):
     shutil.rmtree(results_directory)
-os.makedirs(results_directory)
+os.makedirs(results_directory) 
+
+
+workpath=os.path.abspath(__file__) # der aktuellen Pfad bis zum aktuellen Dokument.  '/home/fabian/Dokumente/TEST_studienarbeiten/test_old/Inst_Schrank_final.py'
 
 
 
 
 
 
-
-
-
-
-### wenn der Ordner nicht existiert, wird er erstellt.
-#if not os.path.exists(Results_carpet):
-#	os.makedirs(Results_carpet)
-
-#if not os.path.exists(directory):
-#os.makedirs(directory)
 
 
 
@@ -246,7 +240,7 @@ else:
 
 
 if Stat_Berechnung == 0: 
-	with open('mcp2.csv') as csvfile:
+	with open('mcp2_x3.csv') as csvfile:
 		reader = csv.reader(csvfile)
 		reader.next()
 	
@@ -261,7 +255,11 @@ if Stat_Berechnung == 0:
 		for i in range (0,35):
 			for j in range(0,2):
 				mcp[i][j]=float(mcp[i][j])
-print 'el valor de mcp2 =',mcp
+
+
+
+
+
 #print 'type mcp = ', type(mcp)
 
 #### folgende Dokumente werden benötigt
@@ -316,9 +314,15 @@ indexmatritze= int(NumOfData-2)
 #zeit=np.linspace(0,30.,1000)
 #tzeit=messung[:,1]
 
-zeit_nichtfein = messung[:,2] 
-Qkuehl_nicht_interpoliert = messung[:,11]
+#x[1:2, 1:3]
 
+zeit_nichtfein = messung[:,2] #sie ist benutzt im bekomme_qkuehl
+Qkuehl_nicht_interpoliert = messung[:,11]
+Qkuehl_average_stationar = np.average (Qkuehl_nicht_interpoliert[651:6004])
+Qkuehl_average_instat_proportional = np.average (Qkuehl_nicht_interpoliert[651:NumOfData-1]) # von scan 652 bis scan 781
+print "Qkuehl_average_instat_proportional = ",Qkuehl_average_instat_proportional
+
+kkk=400
 ###############################################################################
 ######## Zeit
 ###############################################################################
@@ -349,8 +353,13 @@ elif choice == 3: #stationaer
 if Stat_Berechnung == 0: #stationäre Berechnung ausgeschaltet.
 
 	def bekomme_qkuehl(zeit,Automatic_on_off,T23,Ventilator):
-#	def bekomme_qkuehl(zeit,Automatic_on_off,T23,Ventilator,Qkuehl):
-	        index = np.searchsorted(zeit_nichtfein,zeit)
+#	def bekomme_qkuehl(zeit,Automatic_on_off,T23,Ventilator,Qkuehl):        
+		index = np.searchsorted(zeit_nichtfein,zeit)
+		index_qkuehl = index-1
+		
+		if index_qkuehl < 0:
+			index_qkuehl = 0
+		
 		
 		
 #		Qkuehl = np.interp(zeit, zeit_nichtfein, Qkuehl_nicht_interpoliert)
@@ -364,26 +373,25 @@ if Stat_Berechnung == 0: #stationäre Berechnung ausgeschaltet.
 
 #			print 'Taktung an'
 
-			if  Ventilator ==0:
-				if T23>310.65:
-					Qkuehl[index-1]=Dachkuehlgeraet_Qkuehl
+			if  Ventilator ==0: # if ventilator ist aus.
+				if T23>310.65: # if T23 > 37,5C
+					Qkuehl[index_qkuehl]=Dachkuehlgeraet_Qkuehl
+					print "[index_qkuehl] =",[index_qkuehl]
+					print "Qkuehl[index_qkuehl] = ", Qkuehl[index_qkuehl]
+					print "Qkuehl =", Qkuehl
 					Ventilator=1
 				else:
-					Qkuehl[index-1]=0
+					Qkuehl[index_qkuehl]=0
 			else:
-				if T23<305.65:
-					Qkuehl[index-1]=0
+				if T23<305.65: #if T23< 32.5
+					Qkuehl[index_qkuehl]=0
 					Ventilator=0
 				else:
-					Qkuehl[index-1]=1126
+					Qkuehl[index_qkuehl]=Dachkuehlgeraet_Qkuehl
 
-		return Qkuehl[index-1],Ventilator
+		return Qkuehl[index_qkuehl],Ventilator
 
 	
-#elif Stat_Berechnung == 1: 
-#	None
-################################################################
-
 
 
 
@@ -422,6 +430,8 @@ with open('sw.csv') as csvfile:
 #	print 'sw[:,1]',sw[:,1]
 
 #Zonen des Schaltschrankes Unterteilen.
+
+
 
 #Zonen Schaltschrank
 hz=h/3
@@ -469,14 +479,6 @@ Asv = hz*tv # Fläche der jeweiligen Zonen rechts und links vorne vom Schaltschr
 Ash = hz*th # Fläche der jeweiligen Zonen rechts und links hinten vom Schanltschrank
 
 
-### korrigieren
-#print ' MESSUNGEN LUFT LUFT LUFT='
-#print 'bi=',bi
-#print 'Asv=',Asv
-Volumeaire = Asv*bi
-Airmass=Asv*bi*dichte
-#print 'volume Aire',Volumeaire
-#print ' cp in J/kgK',cp
 
 # Flächen des Gehäuses (innen)
 # es sind 27 Flächen, d.h. 27 Temperaturknoten.
@@ -576,36 +578,20 @@ masse[0][32] = (Asv*bi)*dichte
 masse[0][33] = (Asv*bi)*dichte
 masse[0][34] = (Asv*bi)*dichte
 mluft=masse[0][28:35].sum()
+print 'type masse', type(masse)
 print 'mluft (Kg) =', mluft
 
 print 'masse = ',masse.transpose()
 
 
-# Interpolation der Stoffwerte
-#def ip(j,NrSe,Tb): # j = Zählvariable zum Einordnen in die Zeile, NrSe = Wahl der Spalte mit jeweiligen 					Stoffeigenschaften
-##	print 'j=',j
-##	print 'NrSe=',NrSe
-##	print 'Tb=',Tb
-#	sw1 = sw[j][NrSe]
-#	sw2 = sw[j+1][NrSe]
-#	T1 = sw[j][0]
-#	T2 = sw[j+1][0]
-#	# y = mx+c
-#	if (sw2-sw1) == 0:
-#		return sw1
-#	if (sw2-sw1) != 0:
-#		m = (T2-T1)/(sw2-sw1)
-#		c = T1-m*sw1
-#		wert = (Tb-c)/m
-#		return wert
+koko = 400
 
 # Interpolation der Stoffwerte franco
 def ip(j,NrSe,Tb): # j = Zählvariable zum Einordnen in die Zeile, NrSe = Wahl der Spalte mit jeweiligen Stoffeigenschaften
 	wert = np.interp(Tb,sw[:,0],sw[:,NrSe])
 	return wert
 
-#theinterpolationff=ip(1,1,45)
-#print 'theinterpolationff (3,45,0)',theinterpolationff
+
 
 # Wärmeübergangskoeffizient
 
@@ -1479,9 +1465,9 @@ def system(zeit,v):
 	T[23] = v[23]
 	T[24] = v[24]
 
-	T[25] = v[22]
-	T[26] = v[23]
-	T[27] = v[24]
+	T[25] = v[25]
+	T[26] = v[26]
+	T[27] = v[27]
 	
 	# Luft 
 
@@ -1534,7 +1520,7 @@ def system(zeit,v):
 
 
 ######## Q strahlung
-	
+	global summ_Q_str
 	global Q_str
 	Q_str=np.zeros((28,1),dtype=double)
 	kronecker_delta = np.eye(28, dtype=double)
@@ -1560,7 +1546,7 @@ def system(zeit,v):
 		if j >=22:
 			e = ep
 		Q_str[j] = A[0][j]*e/(1-e)*(Cs*T[j]**4-x[j])
-		
+	summ_Q_str=Q_str[:].sum()	
 #	print 'helligkeit',x
 #	print 'helligkeit dim',np.shape(x)	
 #	print 'Q_str',Q_str
@@ -1722,7 +1708,7 @@ def system(zeit,v):
 		+eg*Ash*Cs*(Tamb**4-T[16]**4)\
 		+lambda_g*th*s*(T[15]-T[16])/hz+lambda_g*th*s*(T[17]-T[16])/hz\
 		+lambda_g*hz*s*(T[20]-T[16])/(0.5*(b+th))+lambda_g*hz*s*(T[5]-T[16])/(0.5*t))/(mcp[16][0]*mcp[16][1])
-#strahlung
+
 	dT[17] = (alpha_frei_aussen_hl*Ash*(Tamb-T[17])\
 		+alpha_misch_wi_hl*A[0][17]*(T[31]-T[17])\
 		-Q_str[17]\
@@ -1757,43 +1743,49 @@ def system(zeit,v):
 		+lambda_g*hz*s*(T[17]-T[21])/(0.5*(th+b))+lambda_g*hz*s*(T[14]-T[21])/(0.5*(th+b))\
 		+lambda_g*b*s*(T[20]-T[21])/hz+lambda_g*b*s*(T[18]-T[21])/(0.5*(hz+th)))/(mcp[21][0]*mcp[21][1])
 
-#	Platte dt 22, 23 24 ist gleich als dt 25 26 27
+#	Platte dt 22, 23, 24, 25, 26, 27
 
-
-	dT[22] = (alpha_misch_pv*A[0][22]*(T[34]-T[22])+alpha_misch_ph*A[0][22]*(T[29]-T[22])\
-		-Q_str[22]-Q_str[25]\
-		+lambda_p*bp*tp*(T[23]-T[22])/(0.5*(hp1+hp2))\
-		+QV1)/(mcp[22][0]*mcp[22][1])
+		
+	dT[22] = (alpha_misch_pv*A[0][22]*(T[34]-T[22])\
+		-Q_str[22]\
+		+lambda_p*(bp*tp/2)*(T[23]-T[22])/(0.5*(hp1+hp2))+lambda_p*(bp*hp1)*(T[25]-T[22])/(0.5*tp)\
+		+QV1/2)/(mcp[22][0]*mcp[22][1])
 	     
 
-	dT[23] = (alpha_misch_pv*A[0][23]*(T[33]-T[23])+alpha_misch_ph*A[0][23]*(T[30]-T[23])\
-		-Q_str[23]-Q_str[26]\
-		+lambda_p*bp*tp*(T[22]-T[23])/(0.5*(hp1+hp2))+lambda_p*bp*tp*(T[24]-T[23])/(0.5*(hp2+hp3))\
-		+QV2)/(mcp[23][0]*mcp[23][1])
+	dT[23] = (alpha_misch_pv*A[0][23]*(T[33]-T[23])\
+		-Q_str[23]\
+		+lambda_p*(bp*tp/2)*(T[22]-T[23])/(0.5*(hp1+hp2))+lambda_p*(bp*tp/2)*(T[24]-T[23])/(0.5*(hp2+hp3))\
+		+lambda_p*(bp*hp2)*(T[26]-T[23])/(0.5*tp)\
+		+QV2/2)/(mcp[23][0]*mcp[23][1])
 	     
 
-	dT[24] = (alpha_misch_pv*A[0][24]*(T[32]-T[24])+alpha_misch_ph*A[0][24]*(T[31]-T[24])\
-		-Q_str[24]-Q_str[27]\
-		+lambda_p*bp*tp*(T[23]-T[24])/(0.5*(hp2+hp3))\
-		+QV3)/(mcp[24][0]*mcp[24][1])
+	dT[24] = (alpha_misch_pv*A[0][24]*(T[32]-T[24])\
+		-Q_str[24]\
+		+lambda_p*(bp*tp/2)*(T[23]-T[24])/(0.5*(hp2+hp3))+lambda_p*(bp*hp3)*(T[27]-T[24])/(0.5*tp)\
+		+QV3/2)/(mcp[24][0]*mcp[24][1])
 
-
-	dT[25] = (alpha_misch_pv*A[0][22]*(T[34]-T[22])+alpha_misch_ph*A[0][22]*(T[29]-T[22])\
-		-Q_str[22]-Q_str[25]\
-		+lambda_p*bp*tp*(T[23]-T[22])/(0.5*(hp1+hp2))\
-		+QV1)/(mcp[22][0]*mcp[22][1])
+	
+	dT[25] = (alpha_misch_ph*A[0][25]*(T[29]-T[25])\
+		-Q_str[25]\
+		+lambda_p*(bp*tp/2)*(T[26]-T[25])/(0.5*(hp1+hp2))+lambda_p*(hp1*bp)*(T[22]-T[25])/(0.5*tp)\
+		+QV1/2)/(mcp[25][0]*mcp[25][1])
 	     
 
-	dT[26] = (alpha_misch_pv*A[0][23]*(T[33]-T[23])+alpha_misch_ph*A[0][23]*(T[30]-T[23])\
-		-Q_str[23]-Q_str[26]\
-		+lambda_p*bp*tp*(T[22]-T[23])/(0.5*(hp1+hp2))+lambda_p*bp*tp*(T[24]-T[23])/(0.5*(hp2+hp3))\
-		+QV2)/(mcp[23][0]*mcp[23][1])
+	dT[26] = (alpha_misch_ph*A[0][26]*(T[30]-T[26])\
+		-Q_str[26]\
+		+lambda_p*(bp*tp/2)*(T[25]-T[26])/(0.5*(hp1+hp2))+lambda_p*(bp*tp/2)*(T[27]-T[26])/(0.5*(hp2+hp3))\
+		+lambda_p*(bp*hp2)*(T[23]-T[26])/(0.5*tp)\
+		+QV2/2)/(mcp[26][0]*mcp[26][1])
 	     
 
-	dT[27] = (alpha_misch_pv*A[0][24]*(T[32]-T[24])+alpha_misch_ph*A[0][24]*(T[31]-T[24])\
-		-Q_str[24]-Q_str[27]\
-		+lambda_p*bp*tp*(T[23]-T[24])/(0.5*(hp2+hp3))\
-		+QV3)/(mcp[24][0]*mcp[24][1])
+	dT[27] = (alpha_misch_ph*A[0][27]*(T[31]-T[27])\
+		-Q_str[27]\
+		+lambda_p*(bp*tp/2)*(T[26]-T[27])/(0.5*(hp2+hp3))+lambda_p*(bp*hp3)*(T[24]-T[27])/(0.5*tp)\
+		+QV3/2)/(mcp[27][0]*mcp[27][1])
+
+
+	# T28 = Tlein, T29 = Tl0, T30=Tl1, T31=Tl2,T32=Tl3,T33=Tl4, T34=Tl5	
+
 
 	if Stat_Berechnung == 1:	
 		dT[28] = (m_dot*cp*(T[34]-T[28])-QKKK)/(mcp[28][0]*mcp[28][1])
@@ -1802,7 +1794,6 @@ def system(zeit,v):
 		global Ventilator
 		Q, Ventilator = bekomme_qkuehl(zeit,Automatic_on_off,T[23],Ventilator)	
 		dT[28] = (m_dot*cp*(T[34]-T[28])-Q)/(mcp[28][0]*mcp[28][1])
-#	dT[28] = (m_dot*cp*(T[34]-T[28])-Qkuehl)/(mcp[28][0]*mcp[28][1])
 
 	dT[29] = (m_dot*cp*(T[28]-T[29])\
 		+alpha_misch_wi_hr*A[0][12]*(T[12]-T[29])+alpha_misch_wi_hl*A[0][15]*(T[15]-T[29])\
@@ -1832,20 +1823,20 @@ def system(zeit,v):
 	t2 = time.time()
 	print 'die Berechnungszeit beträgt =',t2-t1,'sekunden'
 
+
 	return dT
 
 
 
-### Randbedingungen /boundary conditions
+### Randbedingungen /boundary conditions(BC)
 
-## Vector con las RB,BC.
-
-################### erste option T_anfang = Tamb und wird vorgegeben
-BC = np.ones ((35)) #vector de ecuaciones
+BC = np.ones ((35)) 
 for i in range(35):
 
-	BC[i]=Tamb #anfangsttemp 10°C
+	BC[i]=Tamb #anfangsttemp ist die Umgebungstemperatur
 	
+
+
 #################### 2. Option T_anfang= T_stationäre Berechnung
 
 #BC = empty (32) #vector de ecuaciones
@@ -1867,7 +1858,7 @@ for i in range(35):
 
 #sol = solve_ivp(system, [0,340], BC,t_eval= zeit[0:t_ende])
 if Stat_Berechnung ==1:
-	sol= solve_ivp(system, [init_time, end_time+1], BC, method='BDF',t_eval= zeit_eval)
+	sol= solve_ivp(system, [init_time, end_time+1], BC, method='BDF',t_eval= zeit_eval)#, events= event(t,T))
 elif Stat_Berechnung == 0:
 	sol= solve_ivp(system, [init_time, end_time+1], BC, method='LSODA',t_eval= zeit_eval)
 #sol= solve_ivp(system, [init_time, end_time+1], BC, method='RK45')
@@ -1954,13 +1945,18 @@ print ' temperature after all=',np.shape(Temperature)
 print 'Temp_ult kelvin =',Temp_ult 
 print 'Temp_ult celsius =',Temp_ult_celsius
 print 'Q_str',Q_str
+print 'summe_Q_str =', summ_Q_str
 print 'Q_gehaeuse=',Q_gehaeuse
 print 'Summe Q_gehauese', summe_Q_gehaeuse
 print 'die Berechnungszeit beträgt =',t2-t1,'sekunden'
-print 'airmass',Airmass
 print 'sim_date=',sim_date
 print 'shape Temp_ult_celsius',np.shape(Temp_ult_celsius)
 print 'sol.status= ',sol.status
+print "Qkuehl_average_instat_proportional = ",Qkuehl_average_instat_proportional
+#print 'mplatte (kg) = ',mplatte
+#print 'mgehaeuse (kg) = ',mgehaeuse
+#print 'mluft (kg) = ',mluft
+#print 'Qkuehl_average',Qkuehl_average
 ##########################################################################
 ##########################################################################
 
@@ -2064,6 +2060,9 @@ print >>f, '\n'
 f.write('Q_gehaeuse= '+ repr(Q_gehaeuse) + '\n')
 print >>f, '\n'
 f.write('Summe Q_gehauese= ' + repr(summe_Q_gehaeuse) + '\n')
+f.write('Qkuehl_average_instat_proportional = ' + repr(Qkuehl_average_instat_proportional) + '\n')
+
+
 f.close()
 
 ### come back to calculation directory.
@@ -2162,23 +2161,54 @@ os.chdir(my_path)
 # ax.text(xp+tp/2,yp+bp/2+0.1,zp+hp3/2, "T24 = " + str(Temp_ult[24]) + 'K', color='red')
 
 
+
+
+###### Temperatur des Gehaeuses aus der Messung bei höhe von 1630 mm
+#### Berechnung liegt bei 1666 mm
+
+Zeit_min_g= Gehaeuse_Temperatur[:,0]
+Zeit_sek_g= Gehaeuse_Temperatur[:,0]*60.
+LSC_37=Gehaeuse_Temperatur[:,5]
+print "Zeit_sek_g",Zeit_sek_g
+
+
+
+
 # b)  Schaubild Temperaturar entwicklung im Laufe der Zeit
 
+#plt.plot(Zeit_sek,LSC_TL_134,'.',label='Theta_Amb [C]') 
+#plt.plot(Zeit_sek,Tmessung_celsius,label='Theta_Messung [C]')
+
+
 plt.figure(2)
-plt.plot(zeit_solver,Temperature_celsius[:,28]) #platte Tstat =325
+plt.plot(zeit_solver,Temperature_celsius[:,19],color = 'blue',label=' Gehaeuse solver') 
 
-fontsize = 22
-markersize = 15
-labelpad = 10
-linewidth = 2
-
-plt.title('Zeitliche Verlauf der T[28]')
-plt.xlabel('Zeit (sek)')		
-plt.ylabel('Temperature (C)')
-
-my_file2 = 'results_T28.png'
+if Stat_Berechnung==0:
+	plt.plot(Zeit_sek_g,LSC_37,label='Gehaeuse Messung')
+	
+plt.title('Vergleich der Gehaeusetemperatur')
+plt.xlabel('Zeit [Sek]')		
+plt.ylabel('Temperature [C]')
+my_file2 = 'results_Validierung_gehaeuse.png'
 plt.savefig(os.path.join(results_directory, my_file2), dpi=200, bbox_inches='tight')
+plt.legend(loc='lower right')
 plt.grid(True)
+
+
+#plt.plot(zeit_solver,Temperature_celsius[:,19]) #platte Tstat =325
+
+#fontsize = 22
+#markersize = 15
+#labelpad = 10
+#linewidth = 2
+
+#plt.title('Zeitliche Verlauf der T[29]')
+#plt.xlabel('Zeit (sek)')		
+#plt.ylabel('Temperature (C)')
+
+#my_file2 = 'results_T28.png'
+#plt.savefig(os.path.join(results_directory, my_file2), dpi=200, bbox_inches='tight')
+#plt.grid(True)
 
 
 plt.figure(3)
@@ -2189,7 +2219,7 @@ markersize = 15
 labelpad = 10
 linewidth = 2
 
-plt.title('Zeitliche Verlauf der T[34]')
+plt.title('Zeitliche Verlauf der T[34] T_Ausgang_luft')
 plt.xlabel('Zeit (sek)')		
 plt.ylabel('Temperature (C)')
 
@@ -2355,16 +2385,18 @@ Temp_durchschnitt_messung=[32.42,32.26,32.45,35.08,34.17] ## Temp durchschnitt a
 #############################################################################################
 
 plt.figure(5)
-plt.plot(zeit_solver,Temperature_celsius[:,28],label='solver') 
-plt.plot(Zeit_sek,LSC_TL_115,label='Messung')
+plt.plot(zeit_solver,Temperature_celsius[:,34],label='solver') 
+if Stat_Berechnung==0:
+	plt.plot(Zeit_sek,LSC_TL_115,label='Messung')
 #plt.plot(height,Temp_durchschnitt_messung,'g')#,Zeit_min,LSC_TL_136,'r',Zeit_min,LSC_TL_137,'b') #platte Tstat =325
 
-plt.title('Messungdasdjasldjaks')
-plt.xlabel('zeit [mm]')		
+plt.title('Vergleich der Lufttemperatur Ausgangbereich')
+plt.xlabel('zeit [Sek]')		
 plt.ylabel('Temperature [C]')
 my_file5 = 'results_Validierung.png'
 plt.savefig(os.path.join(results_directory, my_file5), dpi=200, bbox_inches='tight')
 plt.legend(loc='lower right')
+plt.grid(True)
 
 
 
@@ -2420,13 +2452,15 @@ for i in range (0,35):
 #print 'shape Nudo',np.shape(Nudo)
 
 
+
+
 ###  add rows or columns to an existing array.
 ####https://code.i-harness.com/es/q/817d96
-results_matrix=np.concatenate((Nudo,Temp_ult_celsius,masse), axis=1)
+#results_matrix=np.concatenate((Nudo,Temp_ult_celsius,masse), axis=1)
 #results_matrix=np.reshape(results_matrix,(2,-1))
 #results_matrix=results_matrix.transpose()
-print results_matrix
-print 'shape results_matrix', np.shape(results_matrix)
+#print results_matrix
+#print 'shape results_matrix', np.shape(results_matrix)
 #import xlsxwriter 
 
 #workbook = xlsxwriter.Workbook('Results01.xlsx')
@@ -2503,5 +2537,4 @@ print 'shape results_matrix', np.shape(results_matrix)
 
 
 plt.show()
-
 
