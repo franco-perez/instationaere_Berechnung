@@ -35,7 +35,7 @@
 ## it is our problem stiff or non stiff.. difficult to determine. 
 
 figurename= 'franco'
-Stat_Berechnung = 0 #wahl 0 aus, 1 eingeschaltet.
+#Stat_Berechnung = 0 #wahl 0 aus, 1 eingeschaltet.
 Ventilator=0 #wert für initialisierung gleich 0 
 init_time = 0 #Variabeln die erlaubt der Kontrolle  der Ausschaltung des Dachkuehlgeraets
 Dachkuehlgeraet_Qkuehl=1226 #watt
@@ -148,7 +148,8 @@ for i in range(0, laenge_datei):
 		Automatic_on_off=bekomme_wert(zeile)
 	elif zeile.find('Dateilaenge:') != -1:
 		NumOfData=bekomme_wert(zeile)
-
+	elif zeile.find('Stationaere_Berechnung:') != -1:
+		Stat_Berechnung=bekomme_wert(zeile)
 
 
 	
@@ -179,7 +180,9 @@ QV2=double(QV2)
 QV3=double(QV3)
 Automatic_on_off=float(Automatic_on_off)
 NumOfData=int(NumOfData)
+Stat_Berechnung = int(Stat_Berechnung)
 
+print 'Stat_Berechnung',Stat_Berechnung
 
 ## Ordner erstellen mit Name der Simulation.
 #os.makedir()
@@ -2181,7 +2184,7 @@ print "Zeit_sek_g",Zeit_sek_g
 
 
 plt.figure(2)
-plt.plot(zeit_solver,Temperature_celsius[:,19],color = 'blue',label=' Gehaeuse solver') 
+plt.plot(zeit_solver,Temperature_celsius[:,19],color = 'red',label=' Gehaeuse solver') 
 
 if Stat_Berechnung==0:
 	plt.plot(Zeit_sek_g,LSC_37,label='Gehaeuse Messung')
@@ -2537,4 +2540,3 @@ for i in range (0,35):
 
 
 plt.show()
-
